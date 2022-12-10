@@ -218,12 +218,10 @@ class SlashTags(Commands, Processor, commands.Cog, metaclass=CompositeMetaClass)
         check_global: bool = True,
         global_priority: bool = False,
     ) -> Optional[SlashTag]:
-        tag = None
         get = partial(discord.utils.get, name=tag_name)
         if global_priority and check_global:
             return get(self.global_tag_cache.values())
-        if guild is not None:
-            tag = get(self.guild_tag_cache[guild.id].values())
+        tag = None if guild is None else get(self.guild_tag_cache[guild.id].values())
         if tag is None and check_global:
             tag = get(self.global_tag_cache.values())
         return tag
@@ -243,7 +241,7 @@ class SlashTags(Commands, Processor, commands.Cog, metaclass=CompositeMetaClass)
             message = "No slash tags have been created"
             if guild is not None:
                 message += " for this server"
-            return await ctx.send(message + ".")
+            return await ctx.send(f"{message}.")
 
         pred = MessagePredicate.yes_or_no(ctx)
         try:
@@ -251,9 +249,7 @@ class SlashTags(Commands, Processor, commands.Cog, metaclass=CompositeMetaClass)
             if guild is not None:
                 text += " on this server"
             await self.send_and_query_response(
-                ctx,
-                text + " from the database? (Y/n)",
-                pred,
+                ctx, f"{text} from the database? (Y/n)", pred
             )
         except asyncio.TimeoutError:
             return await ctx.send("Timed out, not restoring slash tags.")

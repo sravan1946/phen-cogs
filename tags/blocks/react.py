@@ -54,9 +54,11 @@ class ReactBlock(Block):
     ACCEPTED_NAMES = ("react", "reactu")
 
     def will_accept(self, ctx: Context) -> bool:
-        if not (ctx.verb.parameter or ctx.verb.payload):
-            return False
-        return super().will_accept(ctx)
+        return (
+            super().will_accept(ctx)
+            if (ctx.verb.parameter or ctx.verb.payload)
+            else False
+        )
 
     def process(self, ctx: Context) -> Optional[str]:
         emojis = ctx.verb.parameter or ctx.verb.payload

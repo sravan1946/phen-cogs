@@ -146,7 +146,7 @@ class Plague(commands.Cog):
         userRole = data["gameRole"]
         userState = data["gameState"]
 
-        title = f"Plague Profile"
+        title = "Plague Profile"
         description = (
             f"Role: {userRole}\nState: {userState}\nNotifications: {data['notifications']}"
         )
@@ -273,8 +273,7 @@ class Plague(commands.Cog):
         user_list = await self.config.all_users()
         infected_list = []
         for user, data in user_list.items():
-            user = ctx.bot.get_user(user)
-            if user:
+            if user := ctx.bot.get_user(user):
                 userState = data["gameState"]
                 if userState == GameState.INFECTED:
                     infected_list.append(f"{user.mention} - {user}")
@@ -308,8 +307,7 @@ class Plague(commands.Cog):
         user_list = await self.config.all_users()
         infected_list = []
         for user, data in user_list.items():
-            user = guild.get_member(user)
-            if user:
+            if user := guild.get_member(user):
                 userState = data["gameState"]
                 if userState == GameState.INFECTED:
                     infected_list.append(f"{user.mention} - {user}")
@@ -341,8 +339,7 @@ class Plague(commands.Cog):
         user_list = await self.config.all_users()
         healthy_list = []
         for user, data in user_list.items():
-            user = ctx.bot.get_user(user)
-            if user:
+            if user := ctx.bot.get_user(user):
                 userState = data["gameState"]
                 if userState == GameState.HEALTHY:
                     healthy_list.append(f"{user.mention} - {user}")
@@ -395,7 +392,7 @@ class Plague(commands.Cog):
     @plagueset.command(name="reset")
     async def plagueset_reset(self, ctx):
         """Reset the entire Plague Game."""
-        msg = await ctx.send(f"Are you sure you want to reset the current Plague Game?")
+        msg = await ctx.send("Are you sure you want to reset the current Plague Game?")
         start_adding_reactions(msg, ReactionPredicate.YES_OR_NO_EMOJIS)
         pred = ReactionPredicate.yes_or_no(msg, ctx.author)
         try:
@@ -440,7 +437,7 @@ class Plague(commands.Cog):
             color=await ctx.embed_color(),
             description=description,
         )
-        e.set_author(name=f"Plague Game Settings", icon_url=self.bot.user.avatar_url)
+        e.set_author(name="Plague Game Settings", icon_url=self.bot.user.avatar_url)
         await ctx.send(embed=e)
 
     async def get_plague_stats(self) -> Counter:
@@ -513,10 +510,10 @@ class Plague(commands.Cog):
             title = f"You have been cured from {plagueName}!"
             description = f"{ctx.author} cured you."
         elif notificationType == NotificationType.DOCTOR:
-            title = f"You are now a Doctor!"
+            title = "You are now a Doctor!"
             description = f"{ctx.author} has set you as a Doctor. You now have access to `{prefixes[-1]}cure`."
         elif notificationType == NotificationType.PLAGUEBEARER:
-            title = f"You are now a Plaguebearer!"
+            title = "You are now a Plaguebearer!"
             description = f"{ctx.author} has set you as a Plaguebearer. You now have access to `{prefixes[-1]}infect`."
 
         embed = discord.Embed(title=title, description=description)

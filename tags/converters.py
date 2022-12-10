@@ -47,13 +47,11 @@ class TagName(TagSearcher, commands.Converter):
         super().__init__(**kwargs)
 
     async def convert(self, ctx: commands.Context, argument: str) -> str:
-        command = ctx.bot.get_command(argument)
-        if command:
+        if command := ctx.bot.get_command(argument):
             raise commands.BadArgument(f"`{argument}` is already a registered command.")
 
         if not self.allow_named_tags:
-            tag = self.get_tag(ctx, argument)
-            if tag:
+            if tag := self.get_tag(ctx, argument):
                 raise commands.BadArgument(f"`{argument}` is already a registered tag or alias.")
 
         return "".join(argument.split())
@@ -64,8 +62,7 @@ class TagConverter(TagSearcher, commands.Converter):
         if not ctx.guild and not await ctx.bot.is_owner(ctx.author):
             raise commands.BadArgument("Tags can only be used in guilds.")
 
-        tag = self.get_tag(ctx, argument)
-        if tag:
+        if tag := self.get_tag(ctx, argument):
             return tag
         else:
             raise commands.BadArgument(f'Tag "{escape_mentions(argument)}" not found.')

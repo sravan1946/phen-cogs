@@ -126,16 +126,16 @@ class AltDentifier(commands.Cog):
     async def settings(self, ctx: commands.Context):
         """View AltDentifier Settings."""
         data = await self.config.guild(ctx.guild).all()
-        description = []
-
         channel = f"<#{data['channel']}>" if data["channel"] else "None"
-        description.append(f"AltDentifier Check Channel: {channel}")
+        description = [f"AltDentifier Check Channel: {channel}"]
         description = "\n".join(description)
         actions = [f"{key}: {value}" for key, value in data["actions"].items()]
         actions = box("\n".join(actions))
 
         color = await self.bot.get_embed_colour(ctx)
-        e = discord.Embed(color=color, title=f"AltDentifier Settings", description=description)
+        e = discord.Embed(
+            color=color, title="AltDentifier Settings", description=description
+        )
         e.add_field(name="Actions", value=actions, inline=False)
         if data["whitelist"]:
             e.add_field(name="Whitelist", value=humanize_list(data["whitelist"]), inline=False)
@@ -268,7 +268,7 @@ class AltDentifier(commands.Cog):
         e = discord.Embed(
             color=discord.Color.orange(),
             title="AltDentifier Check Fail",
-            description=f"The API encountered an error. Check back later.",
+            description="The API encountered an error. Check back later.",
             timestamp=member.created_at,
         )
         e.set_footer(text="Account created at")
@@ -307,8 +307,7 @@ class AltDentifier(commands.Cog):
                 else:
                     result = "Kicking was skipped due to missing permissions."
             elif action:
-                role = guild.get_role(action)
-                if role:
+                if role := guild.get_role(action):
                     if guild.me.guild_permissions.manage_roles:
                         try:
                             await member.add_roles(role, reason=reason)
@@ -323,7 +322,7 @@ class AltDentifier(commands.Cog):
                     await self.clear_action(member.guild, trust)
                     result = "Adding the role was skipped as the role was deleted."
         except discord.NotFound as e:
-            result = f"The member left before an action could be taken."
+            result = "The member left before an action could be taken."
         return result
 
     async def clear_action(self, guild: discord.Guild, action: int):

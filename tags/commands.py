@@ -64,11 +64,11 @@ log = logging.getLogger("red.phenom4n4n.tags.commands")
 
 
 def _sub(match: re.Match) -> str:
-    if match.group(1):
+    if match[1]:
         return "[p]tag global"
 
     repl = "global "
-    name = match.group(0)
+    name = match[0]
     repl += name
     if name.istitle():
         repl = repl.title()
@@ -99,7 +99,7 @@ class Commands(MixinMeta):
             aliases.extend(tag.aliases)
             tagscript = tag.tagscript.replace("\n", " ")
             if len(tagscript) > 23:
-                tagscript = tagscript[:20] + "..."
+                tagscript = f"{tagscript[:20]}..."
             tagscript = discord.utils.escape_markdown(tagscript)
             description.append(f"`{tag}` - {tagscript}")
 

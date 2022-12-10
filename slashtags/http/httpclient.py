@@ -156,7 +156,7 @@ class SlashHTTP:
 
         data = {}
         if content:
-            data["content"] = str(content)
+            data["content"] = content
         if tts:
             data["tts"] = True
         if embeds:
@@ -185,27 +185,27 @@ class SlashHTTP:
         # logic taken from discord.py
         # https://github.com/Rapptz/discord.py/blob/45d498c1b76deaf3b394d17ccf56112fa691d160/discord/http.py#L462
         form = [{"name": "payload_json", "value": self._to_json(send_data)}]
-        if files and len(files) == 1:
-            file = files[0]
-            form.append(
-                {
-                    "name": "file",
-                    "value": file.fp,
-                    "filename": file.filename,
-                    "content_type": "application/octet-stream",
-                }
-            )
-        elif files:
-            for index, file in enumerate(files):
+        if files:
+            if len(files) == 1:
+                file = files[0]
                 form.append(
+                    {
+                        "name": "file",
+                        "value": file.fp,
+                        "filename": file.filename,
+                        "content_type": "application/octet-stream",
+                    }
+                )
+            else:
+                form.extend(
                     {
                         "name": f"file{index}",
                         "value": file.fp,
                         "filename": file.filename,
                         "content_type": "application/octet-stream",
                     }
+                    for index, file in enumerate(files)
                 )
-
         route = Route(
             "POST",
             url,
@@ -229,8 +229,9 @@ class SlashHTTP:
         original: bool = False,
         components: list = None,
     ):
-        url = "/webhooks/{application_id}/{token}/messages/"
-        url += "@original" if original else "{message_id}"
+        url = "/webhooks/{application_id}/{token}/messages/" + (
+            "@original" if original else "{message_id}"
+        )
         route = Route(
             "PATCH",
             url,
@@ -245,7 +246,7 @@ class SlashHTTP:
 
         payload = {}
         if content is not ...:
-            payload["content"] = str(content) if content is not None else None
+            payload["content"] = content if content is not None else None
         if embeds:
             payload["embeds"] = [e.to_dict() for e in embeds]
         if components is not None:

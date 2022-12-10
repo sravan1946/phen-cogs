@@ -171,7 +171,7 @@ class Prefix(commands.Cog):
         await self.bot.set_prefixes(guild=ctx.guild, prefixes=[])
         embed = await self.prefix_embed(ctx)
         embed.set_footer(text=f"set the prefixes with {self.format_command(ctx, 'prefix set')}")
-        await self.reply(ctx, f"Reset this server's prefixes.", embed=embed)
+        await self.reply(ctx, "Reset this server's prefixes.", embed=embed)
 
     async def get_prefixes(self, guild: discord.Guild = None) -> List[str]:
         prefixes = await self.bot.get_valid_prefixes(guild)

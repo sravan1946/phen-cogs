@@ -293,12 +293,12 @@ class Webhook(commands.Cog):
     ):
         """Close an ongoing webhook session in a channel."""
         channel = channel or ctx.channel
-        session = self.webhook_sessions.get(channel.id)
-        if not session:
+        if session := self.webhook_sessions.get(channel.id):
+            await session.close()
+        else:
             return await ctx.send(
                 f"This channel does not have an ongoing webhook session. Start one with `{ctx.clean_prefix}webhook session`."
             )
-        await session.close()
 
     @commands.Cog.listener()
     async def on_message_without_command(self, message: discord.Message):
@@ -328,14 +328,17 @@ class Webhook(commands.Cog):
         if not message.channel.permissions_for(ctx.me).manage_webhooks:
             return await ctx.send(f"I need `Manage Webhook` permission in {message.channel}.")
         webhooks = await message.channel.webhooks()
-        webhook = None
-        for chan_webhook in webhooks:
-            if (
-                chan_webhook.type == discord.WebhookType.incoming
-                and chan_webhook.id == message.webhook_id
-            ):
-                webhook = chan_webhook
-                break
+        webhook = next(
+            (
+                chan_webhook
+                for chan_webhook in webhooks
+                if (
+                    chan_webhook.type == discord.WebhookType.incoming
+                    and chan_webhook.id == message.webhook_id
+                )
+            ),
+            None,
+        )
         if not webhook:
             raise commands.BadArgument
         await webhook.edit_message(message.id, content=content)
@@ -389,9 +392,7 @@ class Webhook(commands.Cog):
                 raise WebhookNotMatched("That doesn't look like a webhook link.")
 
             webhook_id = int(match.group("id"))
-            if webhook := self.link_cache.get(webhook_id):
-                pass
-            else:
+            if not (webhook := self.link_cache.get(webhook_id)):
                 webhook = discord.Webhook.from_url(
                     match.group(0), adapter=discord.AsyncWebhookAdapter(self.session)
                 )

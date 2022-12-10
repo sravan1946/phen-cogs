@@ -311,10 +311,12 @@ class Processor(MixinMeta):
             role_or_channel = await self.role_or_channel_convert(ctx, argument)
             if not role_or_channel:
                 continue
-            if isinstance(role_or_channel, discord.Role):
-                if role_or_channel in ctx.author.roles:
-                    return
-            elif role_or_channel == ctx.channel:
+            if (
+                isinstance(role_or_channel, discord.Role)
+                and role_or_channel in ctx.author.roles
+                or not isinstance(role_or_channel, discord.Role)
+                and role_or_channel == ctx.channel
+            ):
                 return
         raise RequireCheckFailure(requires["response"])
 

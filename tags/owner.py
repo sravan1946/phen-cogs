@@ -286,8 +286,7 @@ class OwnerCommands(MixinMeta):
                 tag_lines.append("{=(choice.%s):%s}" % (index, script))
                 indices.append(index)
             random_block = "{#:%s}" % ",".join(str(i) for i in indices)
-            tag_lines.append("{=(chosen):%s}" % random_block)
-            tag_lines.append("{choice.{chosen}}")
+            tag_lines.extend(("{=(chosen):%s}" % random_block, "{choice.{chosen}}"))
             tagscript = "\n".join(tag_lines)
         return Tag(self, name, tagscript, guild_id=guild_id, author_id=author_id)
 

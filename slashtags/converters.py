@@ -55,12 +55,12 @@ class TagName(TagSearcher, commands.Converter):
             raise commands.BadArgument("Slash tag names may not exceed 32 characters.")
         if self.check_regex:
             argument = argument.lower()
-            match = SLASH_NAME.match(argument)
-            if not match:
+            if match := SLASH_NAME.match(argument):
+                name = match.group(1)
+            else:
                 raise commands.BadArgument(
                     "Slash tag characters must be alphanumeric or '_' or '-'."
                 )
-            name = match.group(1)
         else:
             name = argument
         if self.check_command and self.get_tag(ctx, name):
@@ -70,10 +70,10 @@ class TagName(TagSearcher, commands.Converter):
 
 class TagConverter(TagSearcher, commands.Converter):
     async def convert(self, ctx: commands.Context, argument: str) -> SlashTag:
-        tag = self.get_tag(ctx, argument)
-        if not tag:
+        if tag := self.get_tag(ctx, argument):
+            return tag
+        else:
             raise commands.BadArgument(f'Slash tag "{escape_mentions(argument)}" not found.')
-        return tag
 
 
 GlobalTagConverter = TagConverter(check_global=True, global_priority=True)

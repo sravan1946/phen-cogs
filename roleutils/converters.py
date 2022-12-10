@@ -137,10 +137,10 @@ class EmojiRole(StrictRole, RealEmojiConverter):
 
 class ObjectConverter(commands.IDConverter):
     async def convert(self, ctx: commands.Context, argument: str) -> discord.Object:
-        match = self._get_id_match(argument)
-        if not match:
+        if match := self._get_id_match(argument):
+            return discord.Object(int(match.group(0)))
+        else:
             raise commands.BadArgument
-        return discord.Object(int(match.group(0)))
 
 
 class TargeterArgs(commands.Converter):

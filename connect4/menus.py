@@ -142,6 +142,8 @@ def get_menu():
     except ImportError:
         return Connect4Menu
 
+
+
     class Connect4ButtonMenu(ButtonMenuMixin, Connect4Menu):
         async def update(self, button):
             await button.defer_update()
@@ -162,8 +164,7 @@ def get_menu():
             return await self._send(ctx, self.game)
 
         async def edit(self, button, *, respond: bool = True, **kwargs):
-            refresh_components = kwargs.pop("refresh_components", False)
-            if refresh_components:
+            if refresh_components := kwargs.pop("refresh_components", False):
                 kwargs["components"] = self._get_components()
 
             try:
@@ -201,5 +202,6 @@ def get_menu():
                 asyncio.create_task(button.send("It's not your turn!", hidden=True))
                 return False
             return button.custom_id.startswith(self.custom_id)
+
 
     return Connect4ButtonMenu

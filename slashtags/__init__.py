@@ -22,6 +22,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
 
+
 import json
 import re
 from pathlib import Path
@@ -44,9 +45,8 @@ __red_end_user_data_statement__ = data["end_user_data_statement"]
 
 tse_version = None
 for requirement in data.get("requirements", []):
-    match = VERSION_RE.search(requirement)
-    if match:
-        tse_version = match.group(1)
+    if match := VERSION_RE.search(requirement):
+        tse_version = match[1]
         break
 
 if not tse_version:

@@ -145,7 +145,7 @@ class Processor(MixinMeta):
     ) -> str:
         seed_variables = {} if seed_variables is None else seed_variables
         seed = self.get_seed_from_context(ctx)
-        seed_variables.update(seed)
+        seed_variables |= seed
 
         output = await tag.run(seed_variables, **kwargs)
         await tag.update_config()
@@ -161,11 +161,10 @@ class Processor(MixinMeta):
                 await self.validate_checks(ctx, actions)
             except RequireCheckFailure as error:
                 response = error.response
-                if response is not None:
-                    if response.strip():
-                        await ctx.send(response[:2000])
-                else:
+                if response is None:
                     start_adding_reactions(ctx.message, ["❌"])
+                elif response.strip():
+                    await ctx.send(response[:2000])
                 return
 
             if delete := actions.get("delete", False):

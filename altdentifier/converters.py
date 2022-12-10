@@ -61,11 +61,12 @@ class LevelConverter(Converter):
 
 class ActionConverter(Converter):
     async def convert(self, ctx: commands.Context, argument: str) -> str:
-        if argument.lower() not in ["kick", "ban"]:
+        if argument.lower() in {"kick", "ban"}:
+            return argument.lower()
+        else:
             raise BadArgument(
                 "This is not a valid action. The valid actions are kick and ban. For roles, supply a role."
             )
-        return argument.lower()
 
 
 # original converter from https://github.com/TrustyJAID/Trusty-cogs/blob/master/serverstats/converters.py#L19

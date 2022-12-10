@@ -61,11 +61,11 @@ log = logging.getLogger("red.phenom4n4n.slashtags.commands")
 
 
 def _sub(match: re.Match) -> str:
-    if match.group(1):
+    if match[1]:
         return "[p]slashtag global"
 
     repl = "global "
-    name = match.group(0)
+    name = match[0]
     repl += name
     if name.istitle():
         repl = repl.title()
@@ -442,7 +442,7 @@ class Commands(MixinMeta):
         limit -= len(title)
         tagscript = tag.tagscript
         if len(tagscript) > limit - 3:
-            tagscript = tagscript[:limit] + "..."
+            tagscript = f"{tagscript[:limit]}..."
         tagscript = tagscript.replace("\n", " ")
         return f"{title}{discord.utils.escape_markdown(tagscript)}"
 
@@ -479,10 +479,10 @@ class Commands(MixinMeta):
     @slashtag.command("list")
     async def slashtag_list(self, ctx: commands.Context):
         """View stored slash tags."""
-        tags = self.guild_tag_cache[ctx.guild.id]
-        if not tags:
+        if tags := self.guild_tag_cache[ctx.guild.id]:
+            await self.view_slash_tags(ctx, tags, is_global=False)
+        else:
             return await ctx.send("There are no slash tags on this server.")
-        await self.view_slash_tags(ctx, tags, is_global=False)
 
     async def show_slash_tag_usage(self, ctx: commands.Context, guild: discord.Guild = None):
         tags = self.guild_tag_cache[guild.id] if guild else self.global_tag_cache
@@ -653,10 +653,10 @@ class Commands(MixinMeta):
     @slashtag_global.command("list")
     @copy_doc(slashtag_list)
     async def slashtag_global_list(self, ctx: commands.Context):
-        tags = self.global_tag_cache
-        if not tags:
+        if tags := self.global_tag_cache:
+            await self.view_slash_tags(ctx, tags, is_global=True)
+        else:
             return await ctx.send("There are no global slash tags.")
-        await self.view_slash_tags(ctx, tags, is_global=True)
 
     @slashtag_global.command("usage", aliases=["stats"])
     @copy_doc(slashtag_usage)

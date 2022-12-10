@@ -139,7 +139,7 @@ class EmbedUtils(commands.Cog):
                 "attach an embed file."
             )
         attachment = ctx.message.attachments[0]
-        if not any(attachment.filename.endswith("." + ft) for ft in file_types):
+        if not any(attachment.filename.endswith(f".{ft}") for ft in file_types):
             file_names = humanize_list([inline(ft) for ft in file_types])
             raise EmbedFileError(
                 f"Invalid file type. The file name must end with one of {file_names}."

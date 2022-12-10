@@ -37,7 +37,7 @@ class ChannelToggle(commands.Converter):
             raise commands.BadArgument(
                 f"`{arg} is not a valid channel state. You use provide `true` or `default`."
             )
-        if arg in ["neutral", "default"]:
+        if arg in {"neutral", "default"}:
             ret = None
         elif arg == "true":
             ret = True

@@ -113,7 +113,7 @@ class ButtonMenuMixin:
         channel = ctx.channel
         data = {"components": [c.to_dict() for c in components]}
         if content:
-            data["content"] = str(content)
+            data["content"] = content
         if embed:
             data["embed"] = embed.to_dict()
         if reference:
@@ -384,15 +384,11 @@ class BaseButtonMenu(ButtonMenuPagesMixin, menus.MenuPages, inherit_buttons=Fals
 class ButtonMenu(BaseButtonMenu, inherit_buttons=False):
     def _skip_single_arrows(self):
         max_pages = self._source.get_max_pages()
-        if max_pages is None:
-            return True
-        return max_pages == 1
+        return True if max_pages is None else max_pages == 1
 
     def _skip_double_triangle_buttons(self):
         max_pages = self._source.get_max_pages()
-        if max_pages is None:
-            return True
-        return max_pages <= 2
+        return True if max_pages is None else max_pages <= 2
 
     @menus.button(
         LEFT_ARROW,

@@ -86,10 +86,9 @@ class Lock(commands.Cog):
 
         if not channel:
             channel = ctx.channel
-        if not roles_or_members:
-            roles_or_members = [ctx.guild.default_role]
-        else:
-            roles_or_members = roles_or_members[:10]
+        roles_or_members = (
+            roles_or_members[:10] if roles_or_members else [ctx.guild.default_role]
+        )
         succeeded = []
         cancelled = []
         failed = []
@@ -160,10 +159,9 @@ class Lock(commands.Cog):
 
         if not channel:
             channel = ctx.channel
-        if not roles_or_members:
-            roles_or_members = [ctx.guild.default_role]
-        else:
-            roles_or_members = roles_or_members[:10]
+        roles_or_members = (
+            roles_or_members[:10] if roles_or_members else [ctx.guild.default_role]
+        )
         succeeded = []
         cancelled = []
         failed = []
@@ -246,9 +244,7 @@ class Lock(commands.Cog):
         channel = channel or ctx.channel
         roles_or_members = roles_or_members or [ctx.guild.default_role]
 
-        perms = {}
-        for perm in permissions:
-            perms.update({perm: False})
+        perms = {perm: False for perm in permissions}
         for role in roles_or_members:
             overwrite = self.update_overwrite(ctx, channel.overwrites_for(role), perms)
             await channel.set_permissions(role, overwrite=overwrite[0])
@@ -366,10 +362,9 @@ class Lock(commands.Cog):
 
         if not channel:
             channel = ctx.channel
-        if not roles_or_members:
-            roles_or_members = [ctx.guild.default_role]
-        else:
-            roles_or_members = roles_or_members[:10]
+        roles_or_members = (
+            roles_or_members[:10] if roles_or_members else [ctx.guild.default_role]
+        )
         succeeded = []
         cancelled = []
         failed = []
@@ -459,9 +454,7 @@ class Lock(commands.Cog):
         channel = channel or ctx.channel
         roles_or_members = roles_or_members or [ctx.guild.default_role]
 
-        perms = {}
-        for perm in permissions:
-            perms.update({perm: state})
+        perms = {perm: state for perm in permissions}
         for role in roles_or_members:
             overwrite = self.update_overwrite(ctx, channel.overwrites_for(role), perms)
             await channel.set_permissions(role, overwrite=overwrite[0])

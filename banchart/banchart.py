@@ -79,7 +79,7 @@ class BanChart(commands.Cog):
     def get_name(user: Union[discord.User, int]) -> str:
         name = str(user)
         if len(name) > 23:
-            name = name[:20] + "..."
+            name = f"{name[:20]}..."
         return name.replace("$", "\\$")
 
     async def get_chart_file(self, ctx: commands.Context, counter: Counter) -> discord.File:
@@ -113,8 +113,7 @@ class BanChart(commands.Cog):
                 action=discord.AuditLogAction.ban, limit=limit
             ):
                 if entry.user.bot and entry.reason:
-                    match = ID_RE.search(entry.reason)
-                    if match:
+                    if match := ID_RE.search(entry.reason):
                         mod_id = int(match.group(0))
                         user = self.bot.get_user(mod_id) or mod_id
                     else:

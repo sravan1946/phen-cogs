@@ -144,7 +144,7 @@ class LinkQuoter(commands.Cog):
                 if footer_field:
                     embed.timestamp = message.created_at
                 e = embed
-            if str(embed.type) in ("image", "article"):
+            if str(embed.type) in {"image", "article"}:
                 image = embed.url
 
         if not e:
@@ -193,8 +193,7 @@ class LinkQuoter(commands.Cog):
                 else None
             )
             if not ref_message:
-                ref_chan = message.guild.get_channel(ref.channel_id)
-                if ref_chan:
+                if ref_chan := message.guild.get_channel(ref.channel_id):
                     try:
                         ref_message = await ref_chan.fetch_message(ref.message_id)
                     except (discord.Forbidden, discord.NotFound):
@@ -384,8 +383,7 @@ class LinkQuoter(commands.Cog):
 
         bucket = self.spam_control.get_bucket(message)
         current = message.created_at.timestamp()
-        retry_after = bucket.get_retry_after(current)
-        if retry_after:
+        if retry_after := bucket.get_retry_after(current):
             log.debug("%r ratelimits exhausted, retry after: %s" % (channel, retry_after))
             return
 

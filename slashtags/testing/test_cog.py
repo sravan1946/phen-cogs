@@ -53,12 +53,11 @@ class SlashTagTesting(commands.Cog):
         r = discord.http.Route(
             "POST", "/channels/{channel_id}/messages", channel_id=ctx.channel.id
         )
-        data = {"content": "Here's your button."}
         button = Button(
             style=ButtonStyle(style), label=label, custom_id=ctx.message.id, emoji=emoji
         )
         components = Component(components=[button])
-        data["components"] = [components.to_dict()]
+        data = {"content": "Here's your button.", "components": [components.to_dict()]}
         await self.bot._connection.http.request(r, json=data)
 
     @commands.is_owner()
@@ -73,11 +72,10 @@ class SlashTagTesting(commands.Cog):
         r = discord.http.Route(
             "POST", "/channels/{channel_id}/messages", channel_id=ctx.channel.id
         )
-        data = {"content": "Cookies clicked: 0."}
         button = Button(style=ButtonStyle.green, custom_id=str(ctx.message.id), emoji="🍪")
         components = Component(components=[button])
         self.cookie_clickers[button.custom_id] = 0
-        data["components"] = [components.to_dict()]
+        data = {"content": "Cookies clicked: 0.", "components": [components.to_dict()]}
         await self.bot._connection.http.request(r, json=data)
 
     @commands.Cog.listener()

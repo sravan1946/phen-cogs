@@ -137,7 +137,7 @@ class Tags(
         except asyncio.CancelledError:
             pass
         except Exception as error:
-            log.exception(f"Task failed.", exc_info=error)
+            log.exception("Task failed.", exc_info=error)
 
     def create_task(self, coroutine: Coroutine, *, name: str = None):
         task = asyncio.create_task(coroutine, name=name)
@@ -211,11 +211,9 @@ class Tags(
         check_global: bool = True,
         global_priority: bool = False,
     ) -> Optional[Tag]:
-        tag = None
         if global_priority and check_global:
             return self.global_tag_cache.get(tag_name)
-        if guild is not None:
-            tag = self.guild_tag_cache[guild.id].get(tag_name)
+        tag = None if guild is None else self.guild_tag_cache[guild.id].get(tag_name)
         if tag is None and check_global:
             tag = self.global_tag_cache.get(tag_name)
         return tag

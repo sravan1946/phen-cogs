@@ -158,7 +158,7 @@ class Roles(MixinMeta):
             return await ctx.send(f"**{role}** has no members.")
         members = "\n".join(self.format_member(member, formatting) for member in role.members)
         if len(members) > 2000:
-            await ctx.send(file=text_to_file(members, f"members.txt"))
+            await ctx.send(file=text_to_file(members, "members.txt"))
         else:
             await ctx.send(members, allowed_mentions=discord.AllowedMentions.none())
 
@@ -451,7 +451,7 @@ class Roles(MixinMeta):
         """Add a role to all members of a another role."""
         await self.super_massrole(
             ctx,
-            [member for member in target_role.members],
+            list(target_role.members),
             add_role,
             f"Every member of **{target_role}** has this role.",
         )
@@ -465,7 +465,7 @@ class Roles(MixinMeta):
         """Remove a role from all members of a another role."""
         await self.super_massrole(
             ctx,
-            [member for member in target_role.members],
+            list(target_role.members),
             remove_role,
             f"No one in **{target_role}** has this role.",
             False,
@@ -556,8 +556,7 @@ class Roles(MixinMeta):
         failed = []
         for member in members:
             if adding:
-                to_add = [role for role in roles if role not in member.roles]
-                if to_add:
+                if to_add := [role for role in roles if role not in member.roles]:
                     try:
                         await member.add_roles(*to_add, reason=reason)
                     except Exception as e:
@@ -567,18 +566,16 @@ class Roles(MixinMeta):
                         completed.append(member)
                 else:
                     skipped.append(member)
-            else:
-                to_remove = [role for role in roles if role in member.roles]
-                if to_remove:
-                    try:
-                        await member.remove_roles(*to_remove, reason=reason)
-                    except Exception as e:
-                        failed.append(member)
-                        log.exception(f"Failed to remove roles from {member}", exc_info=e)
-                    else:
-                        completed.append(member)
+            elif to_remove := [role for role in roles if role in member.roles]:
+                try:
+                    await member.remove_roles(*to_remove, reason=reason)
+                except Exception as e:
+                    failed.append(member)
+                    log.exception(f"Failed to remove roles from {member}", exc_info=e)
                 else:
-                    skipped.append(member)
+                    completed.append(member)
+            else:
+                skipped.append(member)
         return {"completed": completed, "skipped": skipped, "failed": failed}
 
     @staticmethod

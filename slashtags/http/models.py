@@ -416,10 +416,11 @@ class InteractionResponse:
     async def get_channel(self) -> Union[discord.TextChannel, discord.DMChannel]:
         if channel := self.channel:
             return channel
-        if not self.guild_id:
-            self._channel = await self.author.create_dm()
-        else:
-            self._channel = await self.bot.fetch_channel(self.channel_id)
+        self._channel = (
+            await self.bot.fetch_channel(self.channel_id)
+            if self.guild_id
+            else await self.author.create_dm()
+        )
         return self._channel
 
     @property
@@ -520,31 +521,24 @@ class InteractionResponse:
         channel_id = int(data["value"])
         resolved_channel = resolved["channels"][data["value"]]
         if self.guild_id:
-            if channel := self.guild.get_channel(channel_id):
-                pass
-            else:
+            if not (channel := self.guild.get_channel(channel_id)):
                 channel = discord.TextChannel(
                     state=self._state, guild=self.guild, data=resolved_channel
                 )
-        else:
-            if channel := self._state._get_private_channel(channel_id):
-                pass
-            else:
-                channel = discord.DMChannel(
-                    state=self._state, me=self.bot.user, data=resolved_channel
-                )
+        elif not (channel := self._state._get_private_channel(channel_id)):
+            channel = discord.DMChannel(
+                state=self._state, me=self.bot.user, data=resolved_channel
+            )
         option.set_value(channel)
         return option
 
     def _handle_option_user(
         self, data: dict, option: ResponseOption, resolved: Dict[str, Dict[str, dict]]
     ):
-        user_id = int(data["value"])
         resolved_user = resolved["users"][data["value"]]
         if self.guild_id:
-            if user := self.guild.get_member(user_id):
-                pass
-            else:
+            user_id = int(data["value"])
+            if not (user := self.guild.get_member(user_id)):
                 user = discord.Member(guild=self.guild, data=resolved_user, state=self._state)
                 self.guild._add_member(user)
         else:
@@ -555,12 +549,10 @@ class InteractionResponse:
     def _handle_option_role(
         self, data: dict, option: ResponseOption, resolved: Dict[str, Dict[str, dict]]
     ):
-        role_id = int(data["value"])
         resolved_role = resolved["roles"][data["value"]]
         if self.guild_id:
-            if role := self.guild.get_role(role_id):
-                pass
-            else:
+            role_id = int(data["value"])
+            if not (role := self.guild.get_role(role_id)):
                 role = discord.Role(guild=self.guild, data=resolved_role, state=self)
                 self.guild._add_role(role)
             option.set_value(role)
@@ -617,8 +609,7 @@ class InteractionButton(InteractionResponse):
         components: List[Component] = None,
     ):
         flags = 64 if hidden else None
-        initial = not self.sent
-        if initial:
+        if initial := not self.sent:
             data = await self.http.send_message(
                 self._token,
                 self.id,
@@ -741,8 +732,7 @@ class InteractionCommand(InteractionResponse):
     @discord.utils.cached_slot_property("_cs_content")
     def content(self):
         items = [f"/{self.command_name}"]
-        for option in self.options:
-            items.append(f"`{option.name}: {option.value}`")
+        items.extend(f"`{option.name}: {option.value}`" for option in self.options)
         return " ".join(items)
 
     @property

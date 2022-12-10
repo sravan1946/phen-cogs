@@ -88,9 +88,9 @@ class Infectable(FuzzyHuman):
                 f"**{member.name}** is already infected with {game_data['plagueName']}."
             )
         elif data["gameRole"] == "Doctor":
-            raise BadArgument(f"You cannot infect a Doctor!")
+            raise BadArgument("You cannot infect a Doctor!")
         elif data["gameRole"] == "God":
-            raise BadArgument(f"Don't mess with God.")
+            raise BadArgument("Don't mess with God.")
         return member
 
 
@@ -103,7 +103,7 @@ class Curable(FuzzyHuman):
         if data["gameState"] == "healthy":
             raise BadArgument(f"**{member.name}** is already healthy.")
         elif data["gameRole"] == "Plaguebearer":
-            raise BadArgument(f"You cannot cure a Plaguebearer!")
+            raise BadArgument("You cannot cure a Plaguebearer!")
         elif data["gameRole"] == "God":
-            raise BadArgument(f"Don't mess with God.")
+            raise BadArgument("Don't mess with God.")
         return member

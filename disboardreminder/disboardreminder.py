@@ -397,8 +397,7 @@ class DisboardReminder(commands.Cog):
         message = data["message"]
         allowed_mentions = self.bot.allowed_mentions
         if data["role"]:
-            role = guild.get_role(data["role"])
-            if role:
+            if role := guild.get_role(data["role"]):
                 message = f"{role.mention}: {message}"
                 allowed_mentions = discord.AllowedMentions(roles=[role])
 
@@ -421,10 +420,10 @@ class DisboardReminder(commands.Cog):
             return
         if message.author.id != DISBOARD_BOT_ID:
             return
-        bump_chan_id = self.channel_cache.get(guild.id)
-        if not bump_chan_id:
+        if bump_chan_id := self.channel_cache.get(guild.id):
+            return guild.get_channel(bump_chan_id)
+        else:
             return
-        return guild.get_channel(bump_chan_id)
 
     def validate_success(self, message: discord.Message) -> Optional[discord.Embed]:
         if not message.embeds:
@@ -452,8 +451,7 @@ class DisboardReminder(commands.Cog):
         await self.config.guild(guild).nextBump.set(next_bump)
 
         member_adapter = None
-        match = MENTION_RE.search(embed.description)
-        if match:
+        if match := MENTION_RE.search(embed.description):
             member_id = int(match.group(1))
             user = await self.bot.get_or_fetch_member(guild, member_id)
             member_adapter = tse.MemberAdapter(user)
@@ -505,16 +503,16 @@ class DisboardReminder(commands.Cog):
 
         if embed := self.validate_success(message):
             last_bump = data["nextBump"]
-            if last_bump and not (last_bump - message.created_at.timestamp() <= 0):
+            if last_bump and last_bump - message.created_at.timestamp() > 0:
                 return
-            await self.respond_to_bump(data, bump_channel, message, embed)
-        else:
-            if my_perms.manage_messages and clean and channel == bump_channel:
-                await asyncio.sleep(2)
-                try:
-                    await message.delete()
-                except (discord.Forbidden, discord.NotFound):
-                    pass
+            else:
+                await self.respond_to_bump(data, bump_channel, message, embed)
+        elif my_perms.manage_messages and clean and channel == bump_channel:
+            await asyncio.sleep(2)
+            try:
+                await message.delete()
+            except (discord.Forbidden, discord.NotFound):
+                pass
 
     def process_tagscript(self, content: str, *, seed_variables: dict = {}):
         output = self.tagscript_engine.process(content, seed_variables)

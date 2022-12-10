@@ -40,14 +40,11 @@ class LinkToMessage(commands.Converter):
         if not match:
             raise commands.MessageNotFound(argument)
 
-        guild_id = int(
-            match.group("guild_id")
-        )  # note: links can have "@me" here but the regex doesn't match that
-        channel_id = int(match.group("channel_id"))
-        message_id = int(match.group("message_id"))
+        guild_id = int(match["guild_id"])
+        channel_id = int(match["channel_id"])
+        message_id = int(match["message_id"])
 
-        message = ctx.bot._connection._get_message(message_id)
-        if message:
+        if message := ctx.bot._connection._get_message(message_id):
             return await self.validate_message(ctx, message)
 
         guild = ctx.bot.get_guild(guild_id)
@@ -91,18 +88,17 @@ class LinkToMessage(commands.Converter):
             guild_data = await cog.config.guild(guild).all()
             if not data["cross_server"]:
                 raise commands.BadArgument(
-                    f"This server is not opted in to quote messages from other servers."
+                    "This server is not opted in to quote messages from other servers."
                 )
             elif not guild_data["cross_server"]:
                 raise commands.BadArgument(
-                    f"That server is not opted in to allow its messages to be quoted in other servers."
+                    "That server is not opted in to allow its messages to be quoted in other servers."
                 )
 
-        member = guild.get_member(ctx.author.id)
-        if member:
+        if member := guild.get_member(ctx.author.id):
             author_perms = message.channel.permissions_for(member)
             if not (author_perms.read_message_history and author_perms.read_messages):
                 raise commands.BadArgument(
-                    f"You don't have permission to read messages in that channel."
+                    "You don't have permission to read messages in that channel."
                 )
         return message

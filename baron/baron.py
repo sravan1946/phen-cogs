@@ -439,7 +439,7 @@ class Baron(commands.Cog):
         """View unchunked servers."""
         guilds = [g async for g in AsyncIter(self.bot.guilds, steps=100) if not g.chunked]
         if not guilds:
-            return await ctx.send(f"There are no unchunked servers.")
+            return await ctx.send("There are no unchunked servers.")
 
         def insert_function(guild: discord.Guild):
             members = len(guild.members)
@@ -499,7 +499,7 @@ class Baron(commands.Cog):
         await self.leave_guilds(
             ctx,
             guilds,
-            f"I have automatically left this server since it has a high bot to member ratio.",
+            "I have automatically left this server since it has a high bot to member ratio.",
             confirmed=confirm,
         )
 
@@ -526,10 +526,14 @@ class Baron(commands.Cog):
     async def baron_leave_blacklisted(self, ctx: commands.Context, confirm: bool = False):
         """Leave all servers that are blacklisted (in case of downtime)."""
         blacklist = await self.config.blacklist()
-        guilds = [g async for g in AsyncIter(self.bot.guilds, steps=100) if g.id in blacklist]
-        if not guilds:
-            return await ctx.send(f"I'm not in any blacklisted servers.")
-        await self.leave_guilds(ctx, guilds, None, notify_guilds=False, confirmed=confirm)
+        if guilds := [
+            g
+            async for g in AsyncIter(self.bot.guilds, steps=100)
+            if g.id in blacklist
+        ]:
+            await self.leave_guilds(ctx, guilds, None, notify_guilds=False, confirmed=confirm)
+        else:
+            return await ctx.send("I'm not in any blacklisted servers.")
 
     @commands.check(comstats_cog)
     @baron_leave.command(name="commands")
@@ -564,10 +568,12 @@ class Baron(commands.Cog):
 
         Credits to KableKompany
         """
-        unchunked = [g async for g in AsyncIter(self.bot.guilds, steps=100) if not g.chunked]
-        if not unchunked:
+        if unchunked := [
+            g async for g in AsyncIter(self.bot.guilds, steps=100) if not g.chunked
+        ]:
+            await self.chunk(ctx, unchunked)
+        else:
             return await ctx.send("All servers are chunked.")
-        await self.chunk(ctx, unchunked)
 
     async def chunk(self, ctx: commands.Context, guilds: List[discord.Guild]):
         message = await ctx.send(f"Attempting to chunk {len(guilds):,} servers...")
@@ -749,7 +755,7 @@ class Baron(commands.Cog):
         ) > (data["bot_ratio"] / 100):
             await self.notify_guild(
                 guild,
-                f"I have automatically left this server since it has a high bot to member ratio.",
+                "I have automatically left this server since it has a high bot to member ratio.",
             )
             await guild.leave()
             await self.baron_log("botfarm_leave", guild=guild)

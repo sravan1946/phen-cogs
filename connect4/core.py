@@ -158,13 +158,13 @@ class Connect4Game:
         win_status = self.whomst_won()
 
         if win_status == self.NO_WINNER:
-            status = self.whomst_turn_name() + "'s turn " + self.PIECES[self.whomst_turn()]
+            status = f"{self.whomst_turn_name()}'s turn {self.PIECES[self.whomst_turn()]}"
         elif win_status == self.TIE:
             status = "It's a tie!"
         elif win_status == self.FORFEIT:
             status = self._get_forfeit_status()
         else:
-            status = self._get_player_name(win_status) + " won!"
+            status = f"{self._get_player_name(win_status)} won!"
         return status + "\n"
 
     def _get_instructions(self):
@@ -201,10 +201,7 @@ class Connect4Game:
                 if player != 0 and len(list(group)) >= 4:
                     return player
 
-        if self.board._full():
-            return self.TIE
-        else:
-            return self.NO_WINNER
+        return self.TIE if self.board._full() else self.NO_WINNER
 
     def other_player_name(self):
         self.turn_count += 1

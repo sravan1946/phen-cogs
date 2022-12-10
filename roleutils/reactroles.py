@@ -139,8 +139,7 @@ class ReactRoles(MixinMeta):
         rules = ReactRules.NORMAL  # TODO rule arg parse converter
         emoji_id = self.emoji_id(emoji)
         async with self.config.custom("GuildMessage", ctx.guild.id, message.id).reactroles() as r:
-            old_role = ctx.guild.get_role(r["react_to_roleid"].get(emoji_id))
-            if old_role:
+            if old_role := ctx.guild.get_role(r["react_to_roleid"].get(emoji_id)):
                 msg = await ctx.send(
                     f"`{old_role}` is already binded to {emoji} on {message.jump_url}\n"
                     "Would you like to override it?"
@@ -283,7 +282,7 @@ class ReactRoles(MixinMeta):
                 del r["react_to_roleid"][emoji if isinstance(emoji, str) else str(emoji.id)]
             except KeyError:
                 return await ctx.send("That wasn't a valid emoji for that message.")
-        await ctx.send(f"That emoji role bind was deleted.")
+        await ctx.send("That emoji role bind was deleted.")
 
     @reactrole.command(name="list")
     async def react_list(self, ctx: commands.Context):
@@ -320,8 +319,7 @@ class ReactRoles(MixinMeta):
 
             reactions = [f"[Reaction Role #{index}]({link})"]
             for emoji, role in data["react_to_roleid"].items():
-                role = ctx.guild.get_role(role)
-                if role:
+                if role := ctx.guild.get_role(role):
                     try:
                         emoji = int(emoji)
                     except ValueError:
@@ -418,9 +416,8 @@ class ReactRoles(MixinMeta):
         if payload.event_type == "REACTION_ADD":
             if role not in member.roles:
                 await member.add_roles(role, reason="Reaction role")
-        else:
-            if role in member.roles:
-                await member.remove_roles(role, reason="Reaction role")
+        elif role in member.roles:
+            await member.remove_roles(role, reason="Reaction role")
 
     @commands.Cog.listener()
     async def on_raw_message_delete(self, payload: discord.RawMessageDeleteEvent):

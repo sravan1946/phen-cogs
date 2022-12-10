@@ -87,7 +87,7 @@ class CustomPing(commands.Cog):
             return
 
         botPing = round(self.bot.latency * 1000, 2)
-        e.description = e.description + f"\nDiscord WebSocket Latency: {botPing}ms"
+        e.description = f"{e.description}\nDiscord WebSocket Latency: {botPing}ms"
         await asyncio.sleep(0.25)
 
         averagePing = (botPing + totalPing) / 2
@@ -123,7 +123,7 @@ class CustomPing(commands.Cog):
             host_latency = round(result["ping"], 2)
 
         e.title = "Pong!"
-        e.description = e.description + f"\nHost Latency: {host_latency}ms"
+        e.description = f"{e.description}\nHost Latency: {host_latency}ms"
         await asyncio.sleep(0.25)
         try:
             await message.edit(embed=e)
@@ -215,8 +215,7 @@ class CustomPing(commands.Cog):
 
 async def setup(bot):
     global old_ping
-    old_ping = bot.get_command("ping")
-    if old_ping:
+    if old_ping := bot.get_command("ping"):
         bot.remove_command(old_ping.name)
 
     cog = CustomPing(bot)
